@@ -1,0 +1,39 @@
+/* Print / "Download report" stylesheet — used by the report page. */
+
+@media print {
+  :root {
+    --bg-page: #ffffff;
+    --bg-inset: #ffffff;
+  }
+
+  body {
+    background: #ffffff;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .shell__main {
+    padding: 0;
+    max-width: none;
+  }
+
+  .card,
+  .swot-card,
+  .report-hero {
+    box-shadow: none !important;
+    border: 1px solid var(--border-strong);
+    break-inside: avoid;
+  }
+
+  .swot-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .anim-in,
+  .anim-in--late,
+  .anim-in--later {
+    animation: none !important;
+  }
+}
