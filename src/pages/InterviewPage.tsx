@@ -115,8 +115,9 @@ export function InterviewPage() {
         void finishInterview();
       } else {
         setPhase('transition');
-        // A breath between questions so the hand-off feels human.
-        setTimeout(() => ask(nextIndex), 700);
+        // A brief breath between questions so the hand-off feels human
+        // but doesn't drag — kept short to minimize perceived latency.
+        setTimeout(() => ask(nextIndex), 220);
       }
     },
     [session, ask, finishInterview],
@@ -141,13 +142,26 @@ export function InterviewPage() {
   );
 
   const repeatQuestion = useCallback(() => {
-    if (!session || phase === 'asking') return;
+    if (!session) return;
+    tts.cancel();
     setPhase('asking');
     stt.stop();
     tts.speak(session.questions[qIndex].question, () => {
       if (phaseRef.current === 'asking') beginListening(false);
     });
-  }, [session, phase, qIndex, stt, tts, beginListening]);
+  }, [session, qIndex, stt, tts, beginListening]);
+
+  /**
+   * "I'm ready" while interviewer is speaking — interrupts the TTS and
+   * drops straight into listening. Eliminates the perceived voice
+   * latency: the question card already shows the text, so users who
+   * read faster than the voice can answer immediately.
+   */
+  const skipIntro = useCallback(() => {
+    if (phase !== 'asking') return;
+    tts.cancel();
+    beginListening(true);
+  }, [phase, tts, beginListening]);
 
   const toggleMic = useCallback(() => {
     if (micPaused) {
@@ -210,8 +224,21 @@ export function InterviewPage() {
 
   const wordCount = collectAnswer() ? collectAnswer().split(/\s+/).length : 0;
 
+  const canAnswerNow = phase === 'answering';
+  const isAsking = phase === 'asking';
+
   return (
-    <ScreenShell width="wide" headerRight={<StatePill state={pillState} />}>
+    <ScreenShell
+      width="wide"
+      headerRight={
+        <div className="row no-print" style={{ gap: '0.75rem' }}>
+          <StatePill state={pillState} />
+          <Button variant="ghost" onClick={() => setConfirmEnd(true)}>
+            Exit interview
+          </Button>
+        </div>
+      }
+    >
       <div className="room">
         <div className="stack" style={{ gap: '0.55rem' }}>
           <div className="row row--between">
@@ -288,47 +315,57 @@ export function InterviewPage() {
         )}
 
         {confirmEnd ? (
-          <div className="row row--wrap card" style={{ padding: '0.9rem 1.2rem' }}>
-            <span className="t-small t-secondary" style={{ flex: 1 }}>
+          <div className="toolbar toolbar--confirm card no-print" role="alertdialog">
+            <span className="t-small t-secondary toolbar__msg">
               End the interview now? You'll get a report on the {qIndex} question
               {qIndex === 1 ? '' : 's'} answered so far.
             </span>
-            <Button variant="danger-ghost" onClick={() => void endEarly()}>
-              End & get report
-            </Button>
-            <Button variant="ghost" onClick={() => setConfirmEnd(false)}>
-              Keep going
-            </Button>
+            <div className="toolbar__zone toolbar__zone--right">
+              <Button variant="ghost" onClick={() => setConfirmEnd(false)}>
+                Keep going
+              </Button>
+              <Button variant="danger-ghost" onClick={() => void endEarly()}>
+                End & get report
+              </Button>
+            </div>
           </div>
         ) : (
-          <div className="room__controls no-print">
-            <Button
-              variant="primary"
-              size="lg"
-              disabled={phase !== 'answering'}
-              onClick={() => void submitCurrent(false)}
-            >
-              {isLast ? 'Finish & get my report' : 'Done — next question'}
-            </Button>
-            <Button disabled={phase === 'asking'} onClick={repeatQuestion}>
-              Repeat question
-            </Button>
-            {stt.supported && (
-              <Button disabled={phase !== 'answering'} onClick={toggleMic}>
-                {micPaused ? 'Resume mic' : 'Pause mic'}
+          <div className="toolbar card no-print" role="toolbar" aria-label="Interview controls">
+            <div className="toolbar__zone toolbar__zone--left">
+              <Button onClick={repeatQuestion} title="Replay the question">
+                {isAsking ? 'Restart' : 'Replay'}
               </Button>
-            )}
-            {stt.supported && (
-              <Button variant="ghost" disabled={phase !== 'answering'} onClick={() => setTyping((t) => !t)}>
-                {typing ? 'Hide typing' : 'Type instead'}
+              {stt.supported && (
+                <Button disabled={!canAnswerNow} onClick={toggleMic}>
+                  {micPaused ? 'Resume mic' : 'Pause mic'}
+                </Button>
+              )}
+              {stt.supported && (
+                <Button variant="ghost" disabled={!canAnswerNow} onClick={() => setTyping((t) => !t)}>
+                  {typing ? 'Hide typing' : 'Type instead'}
+                </Button>
+              )}
+              <Button variant="ghost" disabled={!canAnswerNow} onClick={() => void submitCurrent(true)}>
+                Skip
               </Button>
-            )}
-            <Button variant="ghost" disabled={phase !== 'answering'} onClick={() => void submitCurrent(true)}>
-              Skip
-            </Button>
-            <Button variant="danger-ghost" onClick={() => setConfirmEnd(true)}>
-              End early
-            </Button>
+            </div>
+
+            <div className="toolbar__zone toolbar__zone--right">
+              {isAsking ? (
+                <Button variant="primary" size="lg" onClick={skipIntro}>
+                  I'm ready — let me answer
+                </Button>
+              ) : (
+                <Button
+                  variant="primary"
+                  size="lg"
+                  disabled={!canAnswerNow}
+                  onClick={() => void submitCurrent(false)}
+                >
+                  {isLast ? 'Finish & see my report' : 'Next question →'}
+                </Button>
+              )}
+            </div>
           </div>
         )}
       </div>

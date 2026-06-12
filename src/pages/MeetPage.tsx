@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { InterviewerCharacter, type CharacterState } from '../components/InterviewerCharacter';
 import { ScreenShell } from '../components/ScreenShell';
+import { Steps } from '../components/Steps';
 import { useSpeechSynthesis } from '../hooks/useSpeechSynthesis';
 import { useSession } from '../state/session';
 
@@ -31,7 +32,7 @@ export function MeetPage() {
   return (
     <ScreenShell>
       <div className="meet anim-in">
-        <span className="t-label">Step 3 of 3 · Meet your interviewer</span>
+        <Steps current="meet" />
         <InterviewerCharacter state={state} size="lg" />
         <div className="stack" style={{ gap: '0.35rem', alignItems: 'center' }}>
           <h1 className="t-display">{persona.name}</h1>

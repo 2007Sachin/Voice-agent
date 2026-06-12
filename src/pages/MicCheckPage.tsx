@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { Button } from '../components/Button';
 import { ScreenShell } from '../components/ScreenShell';
+import { Steps } from '../components/Steps';
 import { useMicLevel } from '../hooks/useMicLevel';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 import { useSession } from '../state/session';
@@ -50,7 +51,7 @@ export function MicCheckPage() {
   return (
     <ScreenShell>
       <div className="screen-head anim-in">
-        <span className="t-label">Step 2 of 3 · Mic check</span>
+        <Steps current="mic" />
         <h1 className="t-display">Let's hear you</h1>
         <p className="t-secondary">
           Grant microphone access, then say a sentence — for example, “I'm ready to start the

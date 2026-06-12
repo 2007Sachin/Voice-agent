@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { MODE_LABELS } from '../../server/types';
 import { Button } from '../components/Button';
 import { ScreenShell } from '../components/ScreenShell';
+import { Steps } from '../components/Steps';
 import { useSession } from '../state/session';
 
 export function BriefingPage() {
@@ -20,7 +21,7 @@ export function BriefingPage() {
   return (
     <ScreenShell>
       <div className="screen-head anim-in">
-        <span className="t-label">Step 1 of 3 · Briefing</span>
+        <Steps current="briefing" />
         <h1 className="t-display">Your interview brief</h1>
         <p className="t-secondary">
           {MODE_LABELS[config.mode]} · {config.topic} · {config.difficulty} level ·{' '}

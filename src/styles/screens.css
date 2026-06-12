@@ -206,6 +206,118 @@
   align-items: center;
 }
 
+/* ----- structured action toolbar (interview room footer) ----- */
+
+.toolbar {
+  position: sticky;
+  bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-overlay);
+  z-index: 5;
+}
+
+.toolbar__zone {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.toolbar__zone--left {
+  flex: 1;
+  min-width: 0;
+}
+
+.toolbar__zone--right {
+  margin-left: auto;
+}
+
+.toolbar__msg {
+  flex: 1;
+  min-width: 12rem;
+}
+
+@media (max-width: 720px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toolbar__zone--right {
+    margin-left: 0;
+    justify-content: stretch;
+  }
+
+  .toolbar__zone--right .btn {
+    width: 100%;
+  }
+}
+
+/* ----- step indicator (across multi-step screens) ----- */
+
+.steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.9rem;
+  align-items: center;
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 650;
+}
+
+.steps__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  opacity: 0.55;
+  transition: opacity var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
+}
+
+.steps__item[data-state='done'] {
+  opacity: 0.9;
+}
+
+.steps__item[data-state='current'] {
+  opacity: 1;
+  color: var(--accent-strong);
+}
+
+.steps__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: var(--radius-full);
+  background: var(--bg-inset);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+
+.steps__item[data-state='current'] .steps__num {
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.steps__item[data-state='done'] .steps__num {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.steps__sep {
+  width: 1rem;
+  height: 1px;
+  background: var(--border-strong);
+}
+
 .type-answer textarea {
   width: 100%;
   min-height: 6rem;
